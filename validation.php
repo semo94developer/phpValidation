@@ -1,16 +1,9 @@
-
-<html>
-	<head>
-		<title>
-		</title>
-
-		<meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	</head>
-<?php 
-
-
-
+<?php
+/**
+*@author semo94
+*@link	http://www.semo94.com/
+*@since	Version 1.0.0
+*/
 
 class Validation
 {
@@ -27,9 +20,9 @@ class Validation
 	//
 	private $_default_required = 'yes';
 	
-	private $_default_Max      = 100;
+	private $_default_Max      = 1000;
 	
-	private $_default_Min      = 10;
+	private $_default_Min      = 0;
 	
     private $_default_error    = 'data valid!';
 
@@ -42,7 +35,7 @@ class Validation
 		'Alpha'				=> 'a-zA-Z',
 		'Spaces'            => '\\s',
 		// Numbers
-		'Numeric' 			=> '0-9',// 
+		'Numeric' 			=> '\\d',// 
 		// password 
 			];
 
@@ -68,11 +61,14 @@ class Validation
 	private $_one_rulse  = [
 	// اختيار واحد
 		'Float',//
-		'Email',
+		'Email',//
+		'Date', //
+		'Time',//
 		'Url',
 		'Domin',
 		'Ip',
-		'Phone'
+		'Phone',
+		'Color'
 	];
 
 	public function __construct()
@@ -80,6 +76,8 @@ class Validation
 	
 
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
 	* validate array
 	* @param array
@@ -126,7 +124,7 @@ class Validation
 
       return $errors;
 	}
-
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param array
 	*@param any
@@ -165,11 +163,15 @@ class Validation
 		$ret['errors'] 		 = $errors;
 		return $ret;
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param string
 	*@param string
 	*@return bool
 	*/
+
+	// --------------------------------------------------------------------------------------------
 	public function is($pattern,$data)
 	{
 		if (strpbrk($pattern , $this->_rulse_delimiter))
@@ -195,8 +197,9 @@ class Validation
 			//
 			return $this->{'is'.$pattern}($data);
 		}	
-	} #
+	} 
 
+	// --------------------------------------------------------------------------------------------
 	/** 
 	*@param string
 	*@return bool
@@ -209,13 +212,56 @@ class Validation
 		}
 		return true;
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
+	*@param string like yyyy-mm-dd example 2010-05-25
+	*@return bool
+	*/
+	public function isDate($date)
+	{
+		if(!is_string($date))
+			return false;
+
+		$date = explode('-', $date);
+		if(count($date) != 3)
+			return false;
+
+		return checkdate($date[1], $date[2], $date[0]);
+	}
+
+	// --------------------------------------------------------------------------------------------
+	/**
+	*@param string like hh:ii or h:i example 20:01 or 20:1
+	*@return bool
+	*/
+	public function isTime($time)
+	{
+		$time = explode(':', $time);
+		if(count($time) != 2)
+			return false;
+		if($time[0] > 23 ||$time[0] < 0 || $time[1] > 59 ||$time[1] < 0  )
+			return false;
+		return true;
+	}
+
+	// --------------------------------------------------------------------------------------------
+	/**
+	*@param string like #ffFF00 or #FF0 
+	*@return bool
+	*/
+	public function isColor($color)
+	{
+		return preg_match('/^(#([0-9a-fA-F]{6}|[0-9a-fA-F]{3}))$/', $color);
+	}
+	// --------------------------------------------------------------------------------------------
+	/**
+	* check ipv4
 	*@param string
 	*@return bool
 	*/
 	public function isIp($ip)
 	{
-	   // ipv4 0.0.0.0 - 255.255.255.255
 	   $ip = explode('.',$ip);
 	   if(count($ip) != 4)
 	   {
@@ -223,13 +269,15 @@ class Validation
 	   }
 	   foreach($ip as $val)
 	   {
-	       if(!$this->min_length(0 , $val) || !$this->max_length(255 , $val) )
+	       if( $val < 0 ||  $val > 255 || !is_numeric($val)) 
 	       {
 	           return false;
 	       }
 	   }
 	   return true;
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/** 
 	*@param string
 	*@return bool
@@ -239,6 +287,7 @@ class Validation
 		return is_float($number);
 	}
 	
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param int
 	*@param any
@@ -256,6 +305,8 @@ class Validation
 		}
 		return true;
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param int
 	*@param any
@@ -274,6 +325,8 @@ class Validation
 		}
 		return true;
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
 	* @param string
 	* @return
@@ -286,6 +339,8 @@ class Validation
 	     }
 	     return false;
 	 }
+
+	 // --------------------------------------------------------------------------------------------
 	/**
 	*@param string
 	*@return string
@@ -300,10 +355,14 @@ class Validation
            $new_pattern .= $this->_patterns[$val];
        }
        $new_pattern = $new_pattern .']+$/u'; 
-       var_dump($new_pattern);
        return $new_pattern;
 	}
+	/**
+	*
+	*
+	*/
 	
+	// --------------------------------------------------------------------------------------------
 	private function check_all($rulse)
 	{
 		if(is_array($rulse))
@@ -325,6 +384,8 @@ class Validation
 			throw new Exception($this->_rulse_error_message);	
 		}
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/*
 	*
 	*/
@@ -353,6 +414,8 @@ class Validation
 			throw new Exception($this->_rulse_error_message);
 		}	
 	}
+
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param array  
 	*/
@@ -362,63 +425,6 @@ class Validation
 		{
 			throw new Exception($this->_rulse_error_message);
 		}	
-	} #
-	/**
-	*@param array  
-	*/
-	
+	} 
 }
-
-
-$ex = [					// required ? , patterns , Max lenght , Min length , error message or true
-		'username'  	=> array('Alpha&Numeric','yes', 50 , 5 , 'username filed' ),
-		'email' 	 	=> array('Email', 'yes' , 100 , 10 , 'email error' ),
-		'first_name' 	=> array('Arabic_alpha&Alpha', 'yes' , 100 , 10 , 'email error' ),
-		'ip'            => array('Ip' , 'yes',15,7)
-];
-// ex
-$error = [
-
-	'username' => 'bool' ,
-	'username_error' => array( 'required' => 'bool' , 'pattern' => 'bool' , 'Max' => 'bool' , 'Min'=>'bool' , 'message' =>'your error text '),	 
-
-];
-
-
-
-
-
-if (isset($_POST['sub']))
-{
-	$e = new Validation();
-	$validate = $e->validate_all($ex , $_POST);
-	echo "<pre>";
-	print_r($validate);
-}
-
-
-//var_dump(preg_match("/^([\x{0621}-\x{063a}\x{0641}-\x{064a}a-zA-Z]+)+$/ui", 'سسسسسس'));
-
-
-
-
-
-
 ?>
-
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method='post' >
-
-Email : <input type="text" name="email">
-<br />
-user name :<input type="text" name="username">
-<br />
-first name :<input type="text" name="first_name">
-<br />
-ip :<input type="text" name="ip">
-
-<input type="submit" name="sub">	
-</form>
-
-
-
-
