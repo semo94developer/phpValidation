@@ -1,81 +1,104 @@
 <?php
 /**
-*@author semo94
-*@link	http://www.semo94.com/
-*@since	Version 1.0.0
+*@author 	semo94
+*@link		http://www.semo94.com
+*@link  	https://github.com/semo94developer/phpValidation
+*@since		Version 1.0.0
 */
-
 class Validation
 {
-
-
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
 	private $_rulse_delimiter = '&';
 
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
 	private $_or_delimiter = '|';
-	
-	private $_rulse_error_message = 'rulse valid';
 
-	private $_error = array();
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
+	private $_rulse_error_message = 'rulse valid';
 	
-	//
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
 	private $_default_required = 'yes';
 	
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
 	private $_default_Max      = 1000;
 	
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
 	private $_default_Min      = 0;
 	
+    // --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
     private $_default_error    = 'data valid!';
 
-	private $_patterns = [
-		'Any' 				=>'(.+)',
-		// حروف اللغات الاخرى
-		'Arabic_alpha'		=> '\\x{0621}-\\x{063a}\\x{0641}-\\x{064a}',
-		'Arabic_number' 	=> '\\x{0660}-\\x{0669}',
-		// 
-		'Alpha'				=> 'a-zA-Z',
-		'Spaces'            => '\\s',
-		// Numbers
-		'Numeric' 			=> '\\d',// 
-		// password 
-			];
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
+	private $_patterns 			= array(
+								'Any' 				=>'(.+)',
+								// 
+								'Arabic_alpha'		=> '\\x{0621}-\\x{063a}\\x{0641}-\\x{064a}',
+								'Arabic_number' 	=> '\\x{0660}-\\x{0669}',
+								// 
+								'Alpha'				=> 'a-zA-Z',
+								'Spaces'            => '\\s',
+								// Numbers
+								'Number' 			=> '\\d',// 
+								// password 
+										);
 
-	//
-	private $_rulse  = [
-		'required', //
-		'Any',
-		'Any/',
-		//
-		'Arabic_alpha',
-		'Arabic_number',
-		//
-		'Alpha',
-		'Spaces',
-		// Numbers
-		'Numeric', // 
-		'Int', //
-		'N+', // Any number betwen [0 , infinty[
-		'N-'  // Any number betwen ]infinty , 0]
-	];
-	//
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/	
+	private $_rulse 	 		= array(
+								'required', 
+								'Any',
+								'Any/',
+								'Arabic_alpha',
+								'Arabic_number',
+								'Alpha',
+								'Spaces',
+								'Number', 
+								'Int', 
+								'N+', 
+								'N-' 
+										);
 
-	private $_one_rulse  = [
-	// اختيار واحد
-		'Float',//
-		'Email',//
-		'Date', //
-		'Time',//
-		'Url',
-		'Domin',
-		'Ip',
-		'Phone',
-		'Color'
-	];
-
-	public function __construct()
-	{
-	
-
-	}
+	// --------------------------------------------------------------------------------------------
+	/**
+	*
+	*/
+	private $_one_rulse  		= array(
+									'Float',
+									'Email',
+									'Date', 
+									'Time',
+									'Url',
+									'Domin',
+									'Ip',
+									'Phone',
+									'Color'
+										);
 
 	// --------------------------------------------------------------------------------------------
 	/**
@@ -94,6 +117,7 @@ class Validation
           throw new Exception($this->_rulse_error_message);
       }
       $errors = array();
+      $errors['success']  = true;
       foreach($conditions as $name => $val)
       {
           if(is_array($data[$name]))
@@ -104,6 +128,7 @@ class Validation
           	foreach ($val as $key => $value)
           	{
           		$validate = $this->validate_helper($conditions[$name] , $val);
+          		$errors['success'] = ($errors['success'] * $validate['error_status']);
           		$status_array[$key] = $validate['error_status'];
           		$errors_array[$key] = $validate['errors'];
           	}
@@ -116,6 +141,7 @@ class Validation
           {
 
           	$validate = $this->validate_helper($val , $data[$name]);
+          	$errors['success'] = ($errors['success'] * $validate['error_status']);
           	$errors[$name] = $validate['error_status'];
           	$errors[$name.'_error'] = $validate['errors'];
 
@@ -170,7 +196,6 @@ class Validation
 	*@param string
 	*@return bool
 	*/
-
 	// --------------------------------------------------------------------------------------------
 	public function is($pattern,$data)
 	{
@@ -199,6 +224,17 @@ class Validation
 		}	
 	} 
 
+	// --------------------------------------------------------------------------------------------
+	/**
+	*@param int
+	*@param int
+	*@param any
+	*@return bool
+	*/
+	public function in_range($max , $min ,$val)
+	{
+		return ($this->max_length($max , $val) * $this->min_length($min , $val));
+	}
 	// --------------------------------------------------------------------------------------------
 	/** 
 	*@param string
@@ -340,7 +376,7 @@ class Validation
 	     return false;
 	 }
 
-	 // --------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------
 	/**
 	*@param string
 	*@return string
@@ -361,7 +397,6 @@ class Validation
 	*
 	*
 	*/
-	
 	// --------------------------------------------------------------------------------------------
 	private function check_all($rulse)
 	{
