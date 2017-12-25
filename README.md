@@ -2,7 +2,7 @@
 
 ***
 its easy to used and you can validate so mach data types
-## _Rrquirment_
+## _Requirment_
 * just  php 5.5+
 ## _usag_
  ### you can validate th data in three ways
